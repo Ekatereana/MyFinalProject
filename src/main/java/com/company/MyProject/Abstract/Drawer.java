@@ -10,11 +10,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public abstract class NewDrawer {
-    public static void main(ArrayList<String> methods, ArrayList<String> fields, ArrayList<ArrayList<ArrayList<Double>>> value) {
+public abstract class Drawer {
+    private static String nameOfFile = "MyDiagram.xlsx";
+    private static String nameOfSheet = "Results";
+
+
+    public static void draweGraphic(ArrayList<String> methods, ArrayList<String> fields,
+                                    ArrayList<ArrayList<ArrayList<Double>>> value, ArrayList<ArrayList<Integer>> sizes) {
 
         try (XSSFWorkbook wb = new XSSFWorkbook()) {// create book in format xlsx;
-            XSSFSheet sheet = wb.createSheet("Results");// create page, named "Results";
+            XSSFSheet sheet = wb.createSheet(nameOfSheet);// create page, named "Results";
 
 
             Row row;
@@ -31,20 +36,20 @@ public abstract class NewDrawer {
                     cell.setCellValue(methods.get(collIndex - 2));
                 }// заполняем имена методов
 
-                int size = 1;
+
                 for (int rowIndex = 1 + offset; rowIndex <= value.get(i).size() + offset; rowIndex++) {
                     row = sheet.createRow((short) rowIndex);
                     for (int collIndex = 1; collIndex <= methods.size(); collIndex++) {
                         cell = row.createCell((short) collIndex);
                         if (collIndex == 1) {
-                            cell.setCellValue(size);
+                            cell.setCellValue(sizes.get(i).get(rowIndex - 1 - offset));
                         } else {
                             cell.setCellValue(value.get(i).get(rowIndex - 1 - offset).get(collIndex - 1));
                         }
 
 
                     }
-                    size++;
+
                 }
 
 
@@ -89,7 +94,7 @@ public abstract class NewDrawer {
             }
 
 
-            try (FileOutputStream fileOut = new FileOutputStream("Result.xlsx")) {
+            try (FileOutputStream fileOut = new FileOutputStream(nameOfFile)) {
                 wb.write(fileOut);
             }
         } catch (IOException e) {

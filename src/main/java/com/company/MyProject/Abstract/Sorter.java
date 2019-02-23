@@ -1,15 +1,33 @@
 package com.company.MyProject.Abstract;
 
-import com.company.MyProject.Annotation.IsNOTSorter;
-import com.company.MyProject.Annotation.IsSPECIAL;
-import com.company.MyProject.POJO.MyARR;
+import com.company.MyProject.Annotation.IsSorted;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class  Sorter {
+public class Sorter {
 
 
+    static class MyARR {
+        private int[] rightPart;
+        private int[] leftPart;
+
+
+        public MyARR(int[] rightPart, int[] leftPart) {
+            this.rightPart = rightPart;
+            this.leftPart = leftPart;
+        }
+
+        public int[] getRightPart() {
+            return rightPart;
+        }
+
+        public int[] getLeftPart() {
+            return leftPart;
+        }
+    }
+
+    @IsSorted
     public static int[] bubbleSortFromFirstToLast(int[] arr) {
         if (arr.length < 2) {
             return arr;
@@ -17,10 +35,7 @@ public class  Sorter {
             for (int i = 0; i < arr.length; i++) {
                 for (int j = 1; j < arr.length; j++) {
                     if (arr[j] < arr[j - 1]) {
-                        int a = arr[j];
-                        int b = arr[j - 1];
-                        arr[j] = b;
-                        arr[j - 1] = a;
+                        replaceElement(arr, j - 1, j);
                     }
 
                 }
@@ -29,7 +44,7 @@ public class  Sorter {
         }
     }
 
-
+    @IsSorted
     public static int[] bubbleSortFromLastToFirst(int[] arr) {
         if (arr.length < 2) {
             return arr;
@@ -37,10 +52,8 @@ public class  Sorter {
             for (int i = 0; i < arr.length; i++) {
                 for (int j = arr.length - 1; j > 0; j--) {
                     if (arr[j] < arr[j - 1]) {
-                        int a = arr[j];
-                        int b = arr[j - 1];
-                        arr[j] = b;
-                        arr[j - 1] = a;
+                        replaceElement(arr, j, j - 1);
+
                     }
 
                 }
@@ -49,6 +62,7 @@ public class  Sorter {
         }
     }
 
+    @IsSorted
     public static int[] shakerSort(int[] arr) {
         if (arr.length < 2) {
             return arr;
@@ -62,19 +76,13 @@ public class  Sorter {
             while (offset != middle) {
                 if (i < arr.length) {
                     if (arr[i - offset] < arr[i - offset - 1]) {
-                        int a = arr[i - offset];
-                        int b = arr[i - offset - 1];
-                        arr[i - offset] = b;
-                        arr[i - offset - 1] = a;
+                        replaceElement(arr, i - offset, i - 1 - offset);
                     }
                     i++;
                     j++;
                 } else {
                     if (arr[j - offset] < arr[j - offset - 1]) {
-                        int a = arr[j - offset];
-                        int b = arr[j - offset - 1];
-                        arr[j - offset] = b;
-                        arr[j - offset - 1] = a;
+                        replaceElement(arr, j - offset, j - offset - 1);
                     }
                     j--;
                     i--;
@@ -86,7 +94,7 @@ public class  Sorter {
         }
     }
 
-    @IsSPECIAL
+    @IsSorted
     public static int[] divByTwoSort(int[] arr, int begin, int end) {
         if (arr.length < 2) {
             return arr;
@@ -107,9 +115,7 @@ public class  Sorter {
                 }
 
                 if (i <= j) {
-                    int temporary = arr[i];
-                    arr[i] = arr[j];
-                    arr[j] = temporary;
+                    replaceElement(arr, i, j);
                     i++;
                     j--;
                 }
@@ -130,7 +136,7 @@ public class  Sorter {
 
     }
 
-
+    @IsSorted
     public static int[] mergeSort(int[] arr) {
         if (arr.length < 2) {
             return arr;
@@ -179,7 +185,11 @@ public class  Sorter {
 
     }
 
-    @IsNOTSorter
+    @IsSorted
+    public static void SortByArraysSort(int[] arr) {
+        Arrays.sort(arr);
+    }
+
     private static MyARR divArrByTwoPart(int[] arr) {
         int middle = arr.length / 2;
         if (arr.length % 2 == 1) {
@@ -197,16 +207,12 @@ public class  Sorter {
             two[i - 1] = arr[arr.length - i];
         }
 
-        MyARR result = new MyARR(one, two);
+        Sorter.MyARR result = new Sorter.MyARR(one, two);
 
         return result;
     }
 
-    public static void SortByArraysSort(int []arr){
-        Arrays.sort(arr);
-    }
 
-    @IsNOTSorter
     public static void print(int[] arr) {
         for (int i = 0; i < arr.length; i++) {
             System.out.print(arr[i] + ", ");
@@ -214,12 +220,19 @@ public class  Sorter {
         System.out.println();
     }
 
-    @IsNOTSorter
     public static void print(ArrayList arr) {
         for (int i = 0; i < arr.size(); i++) {
-            System.out.printf( arr.get(i) + ", ");
+            System.out.printf(arr.get(i) + ", ");
         }
         System.out.println();
     }
+
+    private static void replaceElement(int[] arr, int i, int j) {
+        int a = arr[i];
+        arr[i] = arr[j];
+        arr[j] = a;
+
+    }
+
 
 }

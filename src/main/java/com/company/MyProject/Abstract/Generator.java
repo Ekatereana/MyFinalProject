@@ -1,7 +1,7 @@
 package com.company.MyProject.Abstract;
 
 
-public abstract class Generator {
+public class Generator {
 
 
     public static int[] generateSortedArr(int size) {
