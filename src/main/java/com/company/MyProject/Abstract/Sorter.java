@@ -33,7 +33,7 @@ public class Sorter {
             return arr;
         } else {
             for (int i = 0; i < arr.length; i++) {
-                for (int j = 1; j < arr.length; j++) {
+                for (int j = 1; j < arr.length - i; j++) {
                     if (arr[j] < arr[j - 1]) {
                         replaceElement(arr, j - 1, j);
                     }
@@ -50,7 +50,7 @@ public class Sorter {
             return arr;
         } else {
             for (int i = 0; i < arr.length; i++) {
-                for (int j = arr.length - 1; j > 0; j--) {
+                for (int j = arr.length - 1; j > 0 + i; j--) {
                     if (arr[j] < arr[j - 1]) {
                         replaceElement(arr, j, j - 1);
 
@@ -185,7 +185,6 @@ public class Sorter {
 
     }
 
-    @IsSorted
     public static void SortByArraysSort(int[] arr) {
         Arrays.sort(arr);
     }

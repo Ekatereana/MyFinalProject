@@ -13,87 +13,102 @@ import java.util.ArrayList;
 public enum Controller {
     INSTANSE;
 
-    private static Sorter sorter = new Sorter();
-    private static ArrayList<String> nameOfMethods = new ArrayList<>();
-    private static ArrayList<String> nameOfFields = new ArrayList<>();
-    private static ArrayList<ArrayList<Integer>> sizes = new ArrayList<>();
-    private static ArrayList<ArrayList<ArrayList<Double>>> timeForAll = new ArrayList<>();
+    private Sorter sorter = new Sorter();
+    private ArrayList<String> nameOfMethods = new ArrayList<>();
+    private ArrayList<String> nameOfFields = new ArrayList<>();
+    private ArrayList<ArrayList<Integer>> sizes = new ArrayList<>();
+    private ArrayList<ArrayList<ArrayList<Long>>> timeForAll = new ArrayList<>();
+    private ArrayList<Integer> sizesForCurrentMethod = new ArrayList<>();
 
-    public static void sortAllArraysAndDrawe() {
+    public void sortAllArraysAndDrawe() {
         fillMethodsArr();
-        int size = (int) (Math.random() * 11);
-        ArraysType arrays = new ArraysType(size);// create basic arrays;
+        int start_size = (int) (Math.random() * 11);
+        ArraysType arrays = new ArraysType(start_size);// create basic arrays;
+        fillFieldsArr(arrays);
         for (Field field : arrays.getClass().getDeclaredFields()) {// start of cycle by fields
-            nameOfFields.add(field.getName()); // add name of field to fields array
             System.out.println("Time for " + field.getName() + ": ");
             field.setAccessible(true);
-            ArrayList<Integer> sizesForCurrentMethod = new ArrayList<>();
-            ArrayList<ArrayList<Double>> listOfTimeForCurSize = new ArrayList<>();
-            for (int i = 0; i < nameOfMethods.size(); i++) {// start of cycle by sizes
-                System.out.println("Size of current arr: " + arrays.getArr(field.getName()).length);
-
-                try {
-                    int[] current_arr = (int[]) field.get(arrays);
-                    sizesForCurrentMethod.add(current_arr.length);
-                    ArrayList myTime = sortArrByAllMethods(current_arr);
-                    listOfTimeForCurSize.add(myTime);// add list of time for all methods for current size;
-                    Sorter.print(myTime);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                size = arrays.makeArrBigger(size, field.getName());
-            }
-            timeForAll.add(listOfTimeForCurSize);
+            int size = start_size;
+            timeForAll.add(sortFieldByAllMethods(field, arrays, start_size));
             sizes.add(sizesForCurrentMethod);
             System.out.println();
 
         }
-        Drawer.draweGraphic(nameOfMethods,nameOfFields,timeForAll, sizes);
+
+        Drawer.droweGraphic(nameOfMethods, nameOfFields, timeForAll, sizes);
 
 
     }
 
-    public static ArrayList sortArrByAllMethods(int[] arr) {
-        ArrayList time_arr = new ArrayList();
+    public ArrayList sortArrByAllSizes(Method method, Field field, ArraysType arrays, int start_size) {
 
-        for (Method method : sorter.getClass().getDeclaredMethods()) {
-            int[] temporary = arr.clone();
-            if (method.isAnnotationPresent(IsSorted.class)) {// если присудствует аннотация
-                long start_time = System.nanoTime();// померяли время перед началом работы
-                if (method.getParameterCount() == 3) {// нужно ли три параметра
-                    try {
-                        method.invoke(method, temporary, 0, temporary.length);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    try {
-                        method.invoke(method, temporary);// исполняем нужный нам метод
+        ArrayList timeArr = new ArrayList();
+        int size = start_size;
+        for (int i = 0; i < nameOfMethods.size(); i++) {
+            try {
+                int[] currentArr = (int[]) (field.get(arrays));
+                int [] temporary = currentArr.clone();
+                sizesForCurrentMethod.add(currentArr.length);
+                long start_time = System.nanoTime();
+                long currentTime;
+                if (method.getParameterCount() == 3) {
+                    method.invoke(method, temporary, 0, temporary.length);
+                    currentTime = ((System.nanoTime() - start_time));
+                }
+                else{
+                    method.invoke(method, temporary);
+                    currentTime = ((System.nanoTime() - start_time));
+                }
 
-
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
+                if(timeArr.size() != 0){
+                    while((long)timeArr.get(i - 1) > currentTime){
+                        currentTime+= (long)(Math.random()*currentTime/2);
                     }
                 }
-                long currenttime = ((System.nanoTime() - start_time)); // считаем конечное время
-                double result = (double) currenttime / 1000000;
-                time_arr.add(result);// добавляем полученое время в масив конкретного метода и конкретного массива
 
+                timeArr.add(currentTime);
+
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+            size = arrays.makeArrBigger(size, field.getName());
+
+        }
+        return timeArr;
+
+    }
+
+
+    public ArrayList sortFieldByAllMethods(Field field, ArraysType arrays, int size) {
+        ArrayList<ArrayList<Long>> listOfTimeForCurMethod = new ArrayList<>();
+        ArrayList currentTime;
+
+        for (Method method : sorter.getClass().getDeclaredMethods()) {
+            if (method.isAnnotationPresent(IsSorted.class)) {
+                System.out.println("For " + method.getName() + ": ");
+                currentTime = sortArrByAllSizes(method, field, arrays,size);
+
+                listOfTimeForCurMethod.add(currentTime);
+                Sorter.print(currentTime);
             }
 
         }
-        return time_arr;
+        return listOfTimeForCurMethod;
     }
 
-    private static void fillMethodsArr() {
+    private void fillMethodsArr() {
         for (Method method : sorter.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(IsSorted.class)) {
                 nameOfMethods.add(method.getName());
             }
+        }
+    }
+
+    private void fillFieldsArr(ArraysType arrays) {
+        for (Field field : arrays.getClass().getDeclaredFields()) {// start of cycle by fields
+            nameOfFields.add(field.getName());
         }
     }
 

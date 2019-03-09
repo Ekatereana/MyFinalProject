@@ -25,14 +25,12 @@ public class ArraysType {
         }
     }
 
-    public int makeArrBigger( int size, String name) {
-        int new_size = (int) (Math.random() * 11);
-        while (new_size <= size) {
-            new_size += (int) (Math.random() * 6);
-        }
+    public int makeArrBigger(int size, String name) {
+        int new_size = size + 1;
         if (name.equalsIgnoreCase("sortedArr")) {
             this.sortedArr = Generator.generateSortedArr(new_size);
-        } else {
+        }
+        else {
             if (name.equalsIgnoreCase("withRandEndEl")) {
                 this.withRandEndEl = Generator.generateWithRand(new_size);
             } else {
@@ -46,7 +44,6 @@ public class ArraysType {
         }
         return new_size;
     }
-
 
 
     public ArraysType(int size) {

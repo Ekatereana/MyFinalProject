@@ -14,37 +14,37 @@ public abstract class Drawer {
     private static String nameOfFile = "MyDiagram.xlsx";
     private static String nameOfSheet = "Results";
 
+    // поменять оси
 
-    public static void draweGraphic(ArrayList<String> methods, ArrayList<String> fields,
-                                    ArrayList<ArrayList<ArrayList<Double>>> value, ArrayList<ArrayList<Integer>> sizes) {
+
+    public static void droweGraphic(ArrayList<String> methods, ArrayList<String> fields,
+                                    ArrayList<ArrayList<ArrayList<Long>>> value, ArrayList<ArrayList<Integer>> sizes) {
 
         try (XSSFWorkbook wb = new XSSFWorkbook()) {// create book in format xlsx;
-            XSSFSheet sheet = wb.createSheet(nameOfSheet);// create page, named "Results";
+
 
 
             Row row;
             Cell cell;
-            int offset = 0;
 
             for (int i = 0; i < fields.size(); i++) {
-                row = sheet.createRow(0 + offset); // пишем название типа массива
-                cell = row.createCell(0);
-                cell.setCellValue(fields.get(i));
-
-                for (int collIndex = 2; collIndex <= methods.size(); collIndex++) {
+                XSSFSheet sheet = wb.createSheet(nameOfSheet + " for " + fields.get(i));// create page, named "Results";
+                row = sheet.createRow(0);
+                for (int collIndex = 1; collIndex <= sizes.size() + 1; collIndex++) {
                     cell = row.createCell((short) collIndex);
-                    cell.setCellValue(methods.get(collIndex - 2));
-                }// заполняем имена методов
+                    cell.setCellValue(sizes.get(i).get(collIndex - 1));
+
+                }
 
 
-                for (int rowIndex = 1 + offset; rowIndex <= value.get(i).size() + offset; rowIndex++) {
+                for (int rowIndex = 1; rowIndex <= value.get(i).size(); rowIndex++) {
                     row = sheet.createRow((short) rowIndex);
-                    for (int collIndex = 1; collIndex <= methods.size(); collIndex++) {
+                    for (int collIndex = 0; collIndex <= methods.size(); collIndex++) {
                         cell = row.createCell((short) collIndex);
-                        if (collIndex == 1) {
-                            cell.setCellValue(sizes.get(i).get(rowIndex - 1 - offset));
+                        if (collIndex == 0) {
+                            cell.setCellValue(methods.get(rowIndex - 1));
                         } else {
-                            cell.setCellValue(value.get(i).get(rowIndex - 1 - offset).get(collIndex - 1));
+                            cell.setCellValue(value.get(i).get(rowIndex - 1).get(collIndex - 1));
                         }
 
 
@@ -54,8 +54,8 @@ public abstract class Drawer {
 
 
                 XSSFDrawing drawing = sheet.createDrawingPatriarch();
-                XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, value.get(0).size() + 2 + offset,
-                        methods.size(), 3 * value.get(0).size() + offset);
+                XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, value.get(0).size() + 2,
+                        methods.size(), 3 * value.get(0).size() );
 
                 XSSFChart chart = drawing.createChart(anchor);
                 XDDFChartLegend legend = chart.getOrAddLegend();
@@ -72,13 +72,13 @@ public abstract class Drawer {
                 XDDFLineChartData graphic = (XDDFLineChartData) chart.createData(ChartTypes.LINE, bottomX, leftY);
                 ArrayList<XDDFNumericalDataSource<Double>> data = new ArrayList<>();
 
-                XDDFNumericalDataSource x = XDDFDataSourcesFactory.fromNumericCellRange(sheet,
-                        new CellRangeAddress(1 + offset, value.get(i).size() + offset, 1, 1));
+               XDDFNumericalDataSource x = XDDFDataSourcesFactory.fromNumericCellRange(sheet,
+                        new CellRangeAddress(0, 0, 1, methods.size()));
 
-                for (int j = 2; j < methods.size(); j++) {
-                    XDDFNumericalDataSource<Double> y = XDDFDataSourcesFactory.fromNumericCellRange(sheet, new CellRangeAddress(
-                            1 + offset, value.get(0).size() + offset, j, j));
-                    data.add(y);
+               for (int j = 1; j <= methods.size(); j++) {
+                    XDDFNumericalDataSource<Double> y = XDDFDataSourcesFactory.fromNumericCellRange(sheet,
+                            new CellRangeAddress(j, j, 1, methods.size()));
+                   data.add(y);
                 }
 
                 for (int j = 0; j < data.size(); j++) {
@@ -88,7 +88,6 @@ public abstract class Drawer {
                 }
 
                 chart.plot(graphic);
-                offset += 2 * value.get(i).size() + 10;
 
 
             }
