@@ -62,7 +62,7 @@ public enum Controller {
 
                 if(timeArr.size() != 0){
                     while((long)timeArr.get(i - 1) > currentTime){
-                        currentTime+= (long)(Math.random()*currentTime/2);
+                        currentTime+= (long)(Math.random()*currentTime);
                     }
                 }
 
