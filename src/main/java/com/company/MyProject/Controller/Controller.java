@@ -60,12 +60,6 @@ public enum Controller {
                     currentTime = ((System.nanoTime() - start_time));
                 }
 
-                if(timeArr.size() != 0){
-                    while((long)timeArr.get(i - 1) > currentTime){
-                        currentTime+= (long)(Math.random()*currentTime);
-                    }
-                }
-
                 timeArr.add(currentTime);
 
             } catch (IllegalAccessException e) {
